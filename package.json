@@ -5,9 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start:build": "tsc -w",
+    "build": "tsc",
+    "copy-views": "copyfiles -u 1 \"src/views/**/*\" dist/",
+    "start:build": "npm run build && npm run copy-views && tsc -w",
     "start:run": "nodemon dist/index.js",
-    "start": "concurrently npm:start:*"
+    "start": "concurrently \"npm run start:build\" \"npm run start:run\""
   },
   "repository": {
     "type": "git",
@@ -28,6 +30,7 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.30",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "copyfiles": "^2.4.1"
   }
 }

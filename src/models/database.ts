@@ -60,7 +60,7 @@ async function applySchemaValidation(db: mongodb.Db) {
     validator: jsonSchema
   }).catch(async (error: mongodb.MongoServerError) => {
     if (error.codeName === "NamespaceNotFound") {
-      await db.createCollection("employees", {validator: jsonSchema})
+      await db.createCollection("campgrounds", {validator: jsonSchema})
     }
   })
 }
