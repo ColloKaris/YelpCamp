@@ -1,0 +1,33 @@
+{
+  "name": "yelpcamp",
+  "version": "1.0.0",
+  "description": "A full fledged application for sharing camping grounds",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start:build": "tsc -w",
+    "start:run": "nodemon dist/index.js",
+    "start": "concurrently npm:start:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ColloKaris/YelpCamp.git"
+  },
+  "author": "Collins Kariuki",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ColloKaris/YelpCamp/issues"
+  },
+  "homepage": "https://github.com/ColloKaris/YelpCamp#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.9",
+    "express": "^4.19.1",
+    "mongodb": "^6.5.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.30",
+    "concurrently": "^8.2.2"
+  }
+}
