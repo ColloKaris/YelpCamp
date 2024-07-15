@@ -5,6 +5,11 @@ import { fileURLToPath } from 'url';
 import * as dotenv from 'dotenv';
 import { connectToDatabase } from './models/database.js';
 
+// Delete this later on
+import { Campground } from './models/campground.js';
+import { collections } from './models/database.js';
+// End
+
 dotenv.config();
 const app = express();
 
@@ -29,6 +34,12 @@ if (!ATLAS_URI) {
 app.get('/', (req, res) => {
   res.render('home');
 });
+
+app.get('/makecampground', async (req, res) => {
+  const camp = {title: "My Backyard", price: "300", description: "A test camp", location: "Nairobi"};
+  const result = await collections.campgrounds?.insertOne(camp)
+  res.send(result);
+})
 
 connectToDatabase(ATLAS_URI)
   .then(() => {

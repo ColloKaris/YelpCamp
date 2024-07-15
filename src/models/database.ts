@@ -19,6 +19,8 @@ export async function connectToDatabase(uri: string) {
 
   const campgroundsCollection = db.collection<Campground>("campgrounds");
   collections.campgrounds = campgroundsCollection;
+  return client; // returns client so that we can use it to close 
+  //database connection in other files
 }
 
 // Validation Schema for the collection
