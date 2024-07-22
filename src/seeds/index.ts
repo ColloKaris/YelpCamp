@@ -52,3 +52,5 @@ const seedDB = async () => {
 }
 
 main()
+
+// image: `https://picsum.photos/400?random=${Math.random()}`,

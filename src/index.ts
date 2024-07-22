@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as dotenv from 'dotenv';
 import * as mongodb from 'mongodb';
+import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
 import { connectToDatabase, collections } from './models/database.js';
 import { Campground } from './models/campground.js';
@@ -18,6 +19,8 @@ const { ATLAS_URI } = process.env;
 
 app.set('view engine', 'ejs'); // set ejs as templating engine
 app.set('views', path.join(__dirname, '/views'));
+app.use(expressEjsLayouts); // xpress layouts to make templating easier
+app.set('layout', 'layouts/main')
 
 //check if ATLAS_URI defined, otherwise, exit app
 if (!ATLAS_URI) {
