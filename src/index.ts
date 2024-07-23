@@ -34,20 +34,20 @@ app.use(methodOverride('_method'));
 // Routing logic - To be moved later
 
 app.get('/', (req, res) => {
-  res.render('home');
+  res.render('pages/home');
 });
 
 app.get('/campgrounds', async (req, res) => {
   try {
     const campgrounds = await collections.campgrounds?.find({}).toArray();
-    res.render('campgrounds/index', { campgrounds });
+    res.render('pages/index', { campgrounds });
   } catch (error: any) {
     res.status(500).send(error.message);
   }
 });
 
 app.get('/campgrounds/new', (req, res) => {
-  res.render('campgrounds/new');
+  res.render('pages/new');
 });
 
 app.post('/campgrounds', async (req, res) => {
@@ -72,7 +72,7 @@ app.get('/campgrounds/:id', async (req, res) => {
     const campground = await collections.campgrounds?.findOne(query);
 
     if (campground) {
-      res.render('campgrounds/show', { campground });
+      res.render('pages/show', { campground });
     } else {
       res.status(404).send(`Failed to find campground id: ${id}`);
     }
@@ -87,7 +87,7 @@ app.get('/campgrounds/:id/edit', async (req, res) => {
     const query = { _id: new mongodb.ObjectId(id) };
 
     const campground = await collections.campgrounds?.findOne(query);
-    res.render('campgrounds/edit', { campground });
+    res.render('pages/edit', { campground });
   } catch (error) {
     res.status(404).send('Failed to edit campground');
   }
