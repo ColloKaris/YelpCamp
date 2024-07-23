@@ -53,6 +53,7 @@ app.get('/campgrounds/new', (req, res) => {
 app.post('/campgrounds', async (req, res) => {
   try {
     const campground = req.body.campground;
+    campground.price = parseFloat(campground.price);
     const result = await collections.campgrounds?.insertOne(campground);
     if (result?.acknowledged) {
       res.status(201).redirect(`/campgrounds/${result.insertedId}`);
@@ -97,7 +98,9 @@ app.put('/campgrounds/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const query = { _id: new mongodb.ObjectId(id) };
-    const campground: Campground = { ...req.body.campground };
+    // The line below converts price which is a string to a float first
+    // all data submitted through forms are sent as strings
+    const campground: Campground = { ...req.body.campground, price: parseFloat(req.body.campground.price)};
     const result = await collections.campgrounds?.updateOne(query, {
       $set: campground,
     });
@@ -137,7 +140,6 @@ app.delete('/campgrounds/:id', async (req, res) => {
 });
 
 // End of routing logic
-
 connectToDatabase(ATLAS_URI)
   .then(() => {
     //const app = express();

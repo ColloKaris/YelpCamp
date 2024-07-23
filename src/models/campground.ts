@@ -1,10 +1,10 @@
 import * as mongodb from 'mongodb';
 
 export interface Campground {
-  title: String;
-  image: String;
-  price: Number;
-  description: String;
-  location: String;
+  title: string;
+  image: string;
+  price: number;
+  description: string;
+  location: string;
   _id?: mongodb.ObjectId;
 }
