@@ -32,7 +32,7 @@ async function applySchemaValidation(db: mongodb.Db) {
     // The $jsonSchema keyword is used in MongoDB to define a JSON schema for a collection.
     $jsonSchema: {
       bsonType: "object",
-      required: ['title', 'price', 'description','location'],
+      required: ['title', 'image','price', 'description','location'],
       additionalProperties: false,
       properties: {
         _id: {},
@@ -40,9 +40,13 @@ async function applySchemaValidation(db: mongodb.Db) {
           bsonType: 'string',
           description: "'title' is a string and is required"
         },
-        price: {
+        image: {
           bsonType: 'string',
-          description: "'position is a string and is required'"
+          description: "'image' is a string and is required"
+        },
+        price: {
+          bsonType: 'number',
+          description: "'price' is a number and is required"
         },
         description: {
           bsonType: 'string',
