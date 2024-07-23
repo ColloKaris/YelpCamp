@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction} from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as dotenv from 'dotenv';
@@ -7,6 +7,7 @@ import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
 import { connectToDatabase, collections } from './models/database.js';
 import { Campground } from './models/campground.js';
+import { wrapAsync } from './utils/catchAsync.js';
 
 const app = express();
 
@@ -94,7 +95,7 @@ app.get('/campgrounds/:id/edit', async (req, res) => {
   }
 });
 
-app.put('/campgrounds/:id', async (req, res) => {
+app.put('/campgrounds/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const query = { _id: new mongodb.ObjectId(id) };
@@ -114,8 +115,9 @@ app.put('/campgrounds/:id', async (req, res) => {
       res.status(304).send(`Failed to update Campground: ID ${id}`);
     }
   } catch (error: any) {
-    console.log(error.message);
-    res.status(400).send(error.message);
+    // console.log(error.message);
+    // res.status(400).send(error.message);
+    next(error)
   }
 });
 
@@ -138,6 +140,12 @@ app.delete('/campgrounds/:id', async (req, res) => {
     res.status(400).send(error.message);
   }
 });
+
+// Custom error handling middleware.
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  res.send('Oh Boy, something went wrong!')
+})
+
 
 // End of routing logic
 connectToDatabase(ATLAS_URI)
