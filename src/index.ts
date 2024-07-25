@@ -7,7 +7,7 @@ import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
 import { connectToDatabase, collections } from './models/database.js';
 import { Campground } from './models/campground.js';
-import { wrapAsync } from './utils/catchAsync.js';
+import { asyncHandler } from './utils/asyncHandler.js';
 
 const app = express();
 
@@ -38,21 +38,16 @@ app.get('/', (req, res) => {
   res.render('pages/home');
 });
 
-app.get('/campgrounds', async (req, res) => {
-  try {
+app.get('/campgrounds', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const campgrounds = await collections.campgrounds?.find({}).toArray();
     res.render('pages/index', { campgrounds });
-  } catch (error: any) {
-    res.status(500).send(error.message);
-  }
-});
+}));
 
 app.get('/campgrounds/new', (req, res) => {
   res.render('pages/new');
 });
 
-app.post('/campgrounds', async (req, res) => {
-  try {
+app.post('/campgrounds', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const campground = req.body.campground;
     campground.price = parseFloat(campground.price);
     const result = await collections.campgrounds?.insertOne(campground);
@@ -61,14 +56,9 @@ app.post('/campgrounds', async (req, res) => {
     } else {
       res.status(500).send('Failed to create a new campground');
     }
-  } catch (error: any) {
-    console.log(error);
-    res.status(400).send(error.message);
-  }
-});
+}));
 
-app.get('/campgrounds/:id', async (req, res) => {
-  try {
+app.get('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const query = { _id: new mongodb.ObjectId(id) };
     const campground = await collections.campgrounds?.findOne(query);
@@ -78,25 +68,17 @@ app.get('/campgrounds/:id', async (req, res) => {
     } else {
       res.status(404).send(`Failed to find campground id: ${id}`);
     }
-  } catch (error) {
-    res.status(404).send('Failed to find campground ID');
-  }
-});
+}));
 
-app.get('/campgrounds/:id/edit', async (req, res) => {
-  try {
+app.get('/campgrounds/:id/edit', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const query = { _id: new mongodb.ObjectId(id) };
 
     const campground = await collections.campgrounds?.findOne(query);
     res.render('pages/edit', { campground });
-  } catch (error) {
-    res.status(404).send('Failed to edit campground');
-  }
-});
+}));
 
-app.put('/campgrounds/:id', async (req, res, next) => {
-  try {
+app.put('/campgrounds/:id', asyncHandler(async (req:Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const query = { _id: new mongodb.ObjectId(id) };
     // The line below converts price which is a string to a float first
@@ -114,15 +96,9 @@ app.put('/campgrounds/:id', async (req, res, next) => {
     } else {
       res.status(304).send(`Failed to update Campground: ID ${id}`);
     }
-  } catch (error: any) {
-    // console.log(error.message);
-    // res.status(400).send(error.message);
-    next(error)
-  }
-});
+}));
 
-app.delete('/campgrounds/:id', async (req, res) => {
-  try {
+app.delete('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const query = { _id: new mongodb.ObjectId(id) };
     const result = await collections.campgrounds?.deleteOne(query);
@@ -135,11 +111,7 @@ app.delete('/campgrounds/:id', async (req, res) => {
   } else if (!result.deletedCount) {
       res.status(404).send(`Failed to find a Campground: ID ${id}`);
   }
-  } catch (error: any) {
-    console.error(error.message);
-    res.status(400).send(error.message);
-  }
-});
+}));
 
 // Custom error handling middleware.
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
