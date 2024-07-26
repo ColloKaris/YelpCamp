@@ -8,6 +8,7 @@ import methodOverride from 'method-override';
 import { connectToDatabase, collections } from './models/database.js';
 import { Campground } from './models/campground.js';
 import { asyncHandler } from './utils/asyncHandler.js';
+import { ExpressError } from './utils/ExpressError.js';
 
 const app = express();
 
@@ -48,7 +49,8 @@ app.get('/campgrounds/new', (req, res) => {
 });
 
 app.post('/campgrounds', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const campground = req.body.campground;
+  if(!req.body.campground) throw new ExpressError('Invalid Campground Data', 400);  
+  const campground = req.body.campground;
     campground.price = parseFloat(campground.price);
     const result = await collections.campgrounds?.insertOne(campground);
     if (result?.acknowledged) {
@@ -113,9 +115,16 @@ app.delete('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, 
   }
 }));
 
+// 404 page.
+app.all('*', (req,res,next) => {
+  next(new ExpressError('Page Not Found', 404))
+})
+
 // Custom error handling middleware.
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  res.send('Oh Boy, something went wrong!')
+app.use((err: ExpressError, req: Request, res: Response, next: NextFunction) => {
+  const { statusCode = 500} = err;
+  if(!err.message) err.message = 'Oh No, Something Went Wrong!'
+  res.status(statusCode).render('pages/error', { err });
 })
 
 
