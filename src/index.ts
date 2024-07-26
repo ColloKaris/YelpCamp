@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as dotenv from 'dotenv';
 import * as mongodb from 'mongodb';
+import { campgroundSchema } from './models/joiSchemas.js';
 import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
 import { connectToDatabase, collections } from './models/database.js';
@@ -33,6 +34,16 @@ if (!ATLAS_URI) {
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
+// Validation middleware. Uses Joi.
+const validateCampground = (req: Request, res: Response, next: NextFunction) => {
+  const { error } = campgroundSchema.validate(req.body.campground)
+  if (error) {
+    throw new ExpressError(error.message, 400)
+  } else {
+    next();
+  }
+}
+
 // Routing logic - To be moved later
 
 app.get('/', (req, res) => {
@@ -48,16 +59,15 @@ app.get('/campgrounds/new', (req, res) => {
   res.render('pages/new');
 });
 
-app.post('/campgrounds', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  if(!req.body.campground) throw new ExpressError('Invalid Campground Data', 400);  
+app.post('/campgrounds',validateCampground, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const campground = req.body.campground;
-    campground.price = parseFloat(campground.price);
-    const result = await collections.campgrounds?.insertOne(campground);
-    if (result?.acknowledged) {
-      res.status(201).redirect(`/campgrounds/${result.insertedId}`);
-    } else {
-      res.status(500).send('Failed to create a new campground');
-    }
+  campground.price = parseFloat(campground.price);
+  const result = await collections.campgrounds?.insertOne(campground);
+  if (result?.acknowledged) {
+    res.status(201).redirect(`/campgrounds/${result.insertedId}`);
+  } else {
+    res.status(500).send('Failed to create a new campground');
+  }
 }));
 
 app.get('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -80,7 +90,7 @@ app.get('/campgrounds/:id/edit', asyncHandler(async (req: Request, res: Response
     res.render('pages/edit', { campground });
 }));
 
-app.put('/campgrounds/:id', asyncHandler(async (req:Request, res: Response, next: NextFunction) => {
+app.put('/campgrounds/:id',validateCampground, asyncHandler(async (req:Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const query = { _id: new mongodb.ObjectId(id) };
     // The line below converts price which is a string to a float first
