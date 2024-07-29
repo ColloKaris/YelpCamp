@@ -45,7 +45,6 @@ const validateCampground = (req: Request, res: Response, next: NextFunction) => 
 }
 
 // Routing logic - To be moved later
-
 app.get('/', (req, res) => {
   res.render('pages/home');
 });
@@ -125,6 +124,27 @@ app.delete('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, 
   }
 }));
 
+app.post('/campgrounds/:id/reviews', asyncHandler((async (req, res) => {
+  const campgroundId = req.params.id;
+  const review = req.body.review;
+  review.rating = parseFloat(review.rating)
+
+  // create review
+  const result = await collections.reviews?.insertOne(review)
+  const reviewId = result?.insertedId;
+
+  // Update the campground to push the new reviewId into the reviews array
+  const reviewedCamp = await collections.campgrounds?.updateOne(
+    {_id:new mongodb.ObjectId(campgroundId)}, { $push: {reviews: reviewId}});
+
+  if (reviewedCamp?.modifiedCount === 1) {
+    console.log("Updated the campround with a review");
+    res.redirect(`/campgrounds/${campgroundId}`)
+  } else if(reviewedCamp?.matchedCount === 0) {
+    res.status(400).send(`Failed to find a Campground: ID ${campgroundId}`);
+  }
+})))
+
 // 404 page.
 app.all('*', (req,res,next) => {
   next(new ExpressError('Page Not Found', 404))
@@ -136,7 +156,6 @@ app.use((err: ExpressError, req: Request, res: Response, next: NextFunction) => 
   if(!err.message) err.message = 'Oh No, Something Went Wrong!'
   res.status(statusCode).render('pages/error', { err });
 })
-
 
 // End of routing logic
 connectToDatabase(ATLAS_URI)

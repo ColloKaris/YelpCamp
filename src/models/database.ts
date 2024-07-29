@@ -1,11 +1,12 @@
 import * as mongodb from 'mongodb';
 import { Campground } from './campground.js';
+import { Review } from './review.js';
 
 // An object to hold all the collections that will be created in this project
 export const collections: {
   campgrounds?: mongodb.Collection<Campground>
+  reviews?: mongodb.Collection<Review>
 } = {};
-
 
 // CONNECTING TO THE DATABASE
 export async function connectToDatabase(uri: string) {
@@ -17,10 +18,17 @@ export async function connectToDatabase(uri: string) {
   // section for validation
   await applySchemaValidation(db); // also create a collection
 
+  // used to connect to the specific collections and store references to these
+  // collections in the 'collections' object
   const campgroundsCollection = db.collection<Campground>("campgrounds");
   collections.campgrounds = campgroundsCollection;
+
+  const reviewsCollection = db.collection<Review>("reviews");
+  collections.reviews = reviewsCollection;
+
   return client; // returns client so that we can use it to close 
-  //database connection in other files
+  //database connection in other files - I used this client in the seeds/index.ts file
+  // to close the db connection after seeding it
 }
 
 // Validation Schema for the collection
@@ -28,11 +36,30 @@ async function applySchemaValidation(db: mongodb.Db) {
   // Define the validator. Store it in constant named jsonSchema
   // jsonSchema(The validator) is a document that is used to specify
   // validation rules.
-  const jsonSchema = {
+  
+  const reviewsSchema = {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ['body', 'rating'],
+      properties: {
+        _id:{},
+        body:{
+          bsonType: 'string',
+          description: 'This is the body of the review and must not be empty'
+        },
+        rating: {
+          bsonType: 'number',
+          description: 'This is the rating and it should be a number'
+        }
+      }
+    }
+  }
+    
+  const campgroundSchema = {
     // The $jsonSchema keyword is used in MongoDB to define a JSON schema for a collection.
     $jsonSchema: {
       bsonType: "object",
-      required: ['title', 'image','price', 'description','location'],
+      required: ['title', 'image','price', 'description','location','reviews'],
       additionalProperties: false,
       properties: {
         _id: {},
@@ -55,6 +82,11 @@ async function applySchemaValidation(db: mongodb.Db) {
         location: {
           bsonType: 'string',
           description: "'location' is a string and is required"
+        },
+        reviews: {
+          bsonType: 'array',
+          items: {bsonType: 'objectId'},
+          description: "'This is a visitors review of a campground'"
         }
       }
     }
@@ -63,10 +95,20 @@ async function applySchemaValidation(db: mongodb.Db) {
   // Try applying the modification to the collection, if the collection doesn't exist, create it
   await db.command({
     collMod: "campgrounds",
-    validator: jsonSchema
+    validator: campgroundSchema
   }).catch(async (error: mongodb.MongoServerError) => {
     if (error.codeName === "NamespaceNotFound") {
-      await db.createCollection("campgrounds", {validator: jsonSchema})
+      await db.createCollection("campgrounds", {validator: campgroundSchema})
+    }
+  })
+
+  // Apply the same modification for the reviews collection
+  await db.command({
+    collMod: "reviews",
+    validator: reviewsSchema
+  }).catch(async (error: mongodb.MongoServerError) => {
+    if (error.codename === "NamespaceNotFound") {
+      await db.createCollection("reviews", {validator: reviewsSchema})
     }
   })
 }

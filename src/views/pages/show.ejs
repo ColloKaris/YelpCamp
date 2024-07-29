@@ -12,12 +12,24 @@
       </ul>
       <div class="card-body">
         <a href="/campgrounds/<%=campground._id%>/edit" class="card-link btn btn-info">Edit</a>
-        <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE" , method="POST">
+        <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE" method="POST">
           <button class="btn btn-danger">Delete</button>
         </form>
       </div>
-      <div class="card-footer text-muted">2 day ago</div>
+      <div class="card-footer text-muted">2 days ago</div>
     </div>
+    <h2>Leave a review</h2>
+    <form action="/campgrounds/<%= campground._id %>/reviews" class="mb-3" method="POST">
+      <div class="mb-3">
+        <label class="form-label" for="rating">Rating</label>
+        <input type="range" class="form-range" min="1" max="5" name="review[rating]" id="rating">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="body">Review</label>
+        <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3"></textarea>
+      </div>
+      <button class="btn btn-success">Submit</button>
+    </form>
     <a href="/campgrounds">All campgrounds</a>
   </div>
 </div>

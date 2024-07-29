@@ -6,5 +6,6 @@ export interface Campground {
   price: number;
   description: string;
   location: string;
+  reviews: mongodb.ObjectId[],
   _id?: mongodb.ObjectId;
 }

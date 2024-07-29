@@ -45,7 +45,8 @@ const seedDB = async () => {
       image: `https://picsum.photos/400?random=${Math.random()}`,
       price: Math.floor(Math.random() * 20) + 10,
       description: `${sample(descriptors)}`,
-      location: `${cities[random1000].city}, ${cities[random1000].state}`
+      location: `${cities[random1000].city}, ${cities[random1000].state}`,
+      reviews: []
     }
     // insert campground in the database
     const result = await collections.campgrounds?.insertOne(campground)
