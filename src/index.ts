@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as dotenv from 'dotenv';
 import * as mongodb from 'mongodb';
-import { campgroundSchema } from './models/joiSchemas.js';
+import { campgroundSchema, reviewSchema } from './models/joiSchemas.js';
 import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
 import { connectToDatabase, collections } from './models/database.js';
@@ -34,9 +34,19 @@ if (!ATLAS_URI) {
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
-// Validation middleware. Uses Joi.
+// Validation middlewares - Campground validation using Joi
 const validateCampground = (req: Request, res: Response, next: NextFunction) => {
-  const { error } = campgroundSchema.validate(req.body.campground)
+  const { error } = campgroundSchema.validate(req.body)
+  if (error) {
+    throw new ExpressError(error.message, 400)
+  } else {
+    next();
+  }
+}
+
+// Reviews validation using Joi
+const validateReview = (req: Request, res: Response, next: NextFunction) => {
+  const { error } = reviewSchema.validate(req.body)
   if (error) {
     throw new ExpressError(error.message, 400)
   } else {
@@ -124,7 +134,7 @@ app.delete('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, 
   }
 }));
 
-app.post('/campgrounds/:id/reviews', asyncHandler((async (req, res) => {
+app.post('/campgrounds/:id/reviews', validateReview , asyncHandler((async (req, res) => {
   const campgroundId = req.params.id;
   const review = req.body.review;
   review.rating = parseFloat(review.rating)
