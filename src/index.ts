@@ -91,8 +91,7 @@ app.get('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, nex
         as: "campgroundReviews"
       }}
     ]
-    //const campground = await collections.campgrounds?.findOne(query);
-    // campground with review
+    
     const campgroundAsArray = await collections.campgrounds?.aggregate(aggregationPipeline).toArray()
     
     if (campgroundAsArray) {
@@ -146,6 +145,7 @@ app.delete('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, 
   }
 }));
 
+// Add a review.
 app.post('/campgrounds/:id/reviews', validateReview , asyncHandler((async (req, res) => {
   const campgroundId = req.params.id;
   const review = req.body.review;
@@ -166,6 +166,32 @@ app.post('/campgrounds/:id/reviews', validateReview , asyncHandler((async (req, 
     res.status(400).send(`Failed to find a Campground: ID ${campgroundId}`);
   }
 })))
+
+// Delete a review.
+app.delete('/campgrounds/:id/reviews/:reviewId', asyncHandler(async (req: Request, res: Response) => {
+  const { id, reviewId } = req.params;
+  const reviewObjId = new mongodb.ObjectId(reviewId); 
+  
+  // Delete reference from Campgrounds
+  const filter = { _id: new mongodb.ObjectId(id) };
+  const queryCamp = {$pull: {reviews: reviewObjId}};
+  const resultCamp = await collections.campgrounds?.updateOne(filter, queryCamp);
+  if(resultCamp?.modifiedCount === 1) {
+    console.log(`Deleted review reference`)
+  } else {
+    console.log('Failed to delete review reference in Campground')
+  }
+  
+  // Delete the actual review from the reviews collection.
+  const result = await collections.reviews?.deleteOne({ _id: reviewObjId })
+  if(result?.acknowledged === true && result?.deletedCount ===1) {
+    console.log(`Deleted review with reviewId ${reviewId}`)
+  } else {
+    console.log('Failed to delete review in reviews collection')
+  }
+
+  res.redirect(`/campgrounds/${id}`)
+}))
 
 // 404 page.
 app.all('*', (req,res,next) => {
