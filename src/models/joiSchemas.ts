@@ -10,7 +10,7 @@ export const campgroundSchema = Joi.object({
     location: Joi.string().min(1).required(),
     reviews: Joi.array()
       .items(Joi.string().pattern(/^[a-fA-F0-9]{24}$/))
-      .required(),
+      .default([]) ,
   }).required(), // this final required is necessary
   // Add required() for the entire object(remember how forms submit undeer
   // a value campground or reviews)

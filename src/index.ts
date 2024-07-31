@@ -70,6 +70,7 @@ app.get('/campgrounds/new', (req, res) => {
 
 app.post('/campgrounds',validateCampground, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const campground = req.body.campground;
+  campground.reviews = [];
   campground.price = parseFloat(campground.price);
   const result = await collections.campgrounds?.insertOne(campground);
   if (result?.acknowledged) {
@@ -131,18 +132,30 @@ app.put('/campgrounds/:id',validateCampground, asyncHandler(async (req:Request, 
 }));
 
 app.delete('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+  // Best implementation is to use transactions  
+  const { id } = req.params;
     const query = { _id: new mongodb.ObjectId(id) };
-    const result = await collections.campgrounds?.deleteOne(query);
-
-    if (result && result.deletedCount) {
-      console.log(`Removed Campground : ID ${id}`);
-      res.redirect('/campgrounds')
-  } else if (!result) {
-      res.status(400).send(`Failed to remove a Campground: ID ${id}`);
-  } else if (!result.deletedCount) {
-      res.status(404).send(`Failed to find a Campground: ID ${id}`);
-  }
+    
+    // Retrieve campground and its id
+    const camp = await collections.campgrounds?.findOne(query);
+    if (camp) {
+      const reviewIds = camp.reviews;
+      let reviewDeletion;
+      // Delete all reviews
+      if (reviewIds.length > 0) {
+        reviewDeletion = await collections.reviews?.deleteMany({_id: {$in: reviewIds}})
+      }
+      // Delete campground.
+      const result = await collections.campgrounds?.deleteOne(query);
+      if (result?.acknowledged === true && reviewIds.length === reviewDeletion?.deletedCount) {
+        console.log("Deleted the campground and its reviews")
+        res.redirect('/campgrounds')
+      } else {
+          console.log("Deletion failed.")
+        }
+    } else {
+      throw new Error("campground not found")
+    }
 }));
 
 // Add a review.
@@ -160,7 +173,6 @@ app.post('/campgrounds/:id/reviews', validateReview , asyncHandler((async (req, 
     {_id:new mongodb.ObjectId(campgroundId)}, { $push: {reviews: reviewId}});
 
   if (reviewedCamp?.modifiedCount === 1) {
-    console.log("Updated the campround with a review");
     res.redirect(`/campgrounds/${campgroundId}`)
   } else if(reviewedCamp?.matchedCount === 0) {
     res.status(400).send(`Failed to find a Campground: ID ${campgroundId}`);
@@ -181,7 +193,7 @@ app.delete('/campgrounds/:id/reviews/:reviewId', asyncHandler(async (req: Reques
   } else {
     console.log('Failed to delete review reference in Campground')
   }
-  
+
   // Delete the actual review from the reviews collection.
   const result = await collections.reviews?.deleteOne({ _id: reviewObjId })
   if(result?.acknowledged === true && result?.deletedCount ===1) {
