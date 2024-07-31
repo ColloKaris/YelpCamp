@@ -82,9 +82,21 @@ app.post('/campgrounds',validateCampground, asyncHandler(async (req: Request, re
 app.get('/campgrounds/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const query = { _id: new mongodb.ObjectId(id) };
-    const campground = await collections.campgrounds?.findOne(query);
-
-    if (campground) {
+    const aggregationPipeline = [
+      {$match: query},
+      {$lookup: {
+        from: "reviews",
+        localField: "reviews",
+        foreignField: "_id",
+        as: "campgroundReviews"
+      }}
+    ]
+    //const campground = await collections.campgrounds?.findOne(query);
+    // campground with review
+    const campgroundAsArray = await collections.campgrounds?.aggregate(aggregationPipeline).toArray()
+    
+    if (campgroundAsArray) {
+      const campground = campgroundAsArray[0];
       res.render('pages/show', { campground });
     } else {
       res.status(404).send(`Failed to find campground id: ${id}`);
