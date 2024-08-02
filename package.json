@@ -22,17 +22,21 @@
   },
   "homepage": "https://github.com/ColloKaris/YelpCamp#readme",
   "dependencies": {
+    "connect-flash": "^0.1.1",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
     "express": "^4.19.1",
     "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.0",
     "joi": "^17.13.3",
     "method-override": "^3.0.0",
     "mongodb": "^6.5.0"
   },
   "devDependencies": {
+    "@types/connect-flash": "^0.0.40",
     "@types/express": "^4.17.21",
     "@types/express-ejs-layouts": "^2.5.4",
+    "@types/express-session": "^1.18.0",
     "@types/method-override": "^0.0.35",
     "@types/node": "^20.11.30",
     "concurrently": "^8.2.2",

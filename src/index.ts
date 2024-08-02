@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url';
 import * as dotenv from 'dotenv';
 import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
+import session from 'express-session'
+import flash from 'connect-flash'
+
 import { connectToDatabase } from './models/database.js';
 import { ExpressError } from './utils/ExpressError.js';
 import { campRouter } from './routes/campgrounds.js';
@@ -23,7 +26,6 @@ if (!ATLAS_URI) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 app.set('view engine', 'ejs'); // set ejs as templating engine
 app.set('views', path.join(__dirname, '/views'));
 
@@ -32,11 +34,29 @@ app.set('layout', 'layouts/main')
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
-app.use(express.static('public')) // set express to serve static files in the public directory
+app.use(express.static(path.join(__dirname, 'public'))) // set express to serve static files in the public directory
+const sessionConfig = {
+  secret: 'thisshouldbeabettersecret!',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  }
+}
+
+app.use(session(sessionConfig));
+app.use(flash())
+
+// Middleware for flashing - Put before route handlers
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error')
+  next();
+})
 
 app.use('/campgrounds', campRouter)
 app.use('/campgrounds/:id/reviews', reviewsRouter)
-
 
 // Routing logic - To be moved later
 app.get('/', (req, res) => {

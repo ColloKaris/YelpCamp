@@ -30,20 +30,29 @@ res.render('pages/new');
 });
 
 campRouter.post('/',validateCampground, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-const campground = req.body.campground;
-campground.reviews = [];
-campground.price = parseFloat(campground.price);
-const result = await collections.campgrounds?.insertOne(campground);
-if (result?.acknowledged) {
-  res.status(201).redirect(`/campgrounds/${result.insertedId}`);
-} else {
-  res.status(500).send('Failed to create a new campground');
-}
+  const campground = req.body.campground;
+  campground.reviews = [];
+  campground.price = parseFloat(campground.price);
+  const result = await collections.campgrounds?.insertOne(campground);
+  if (result?.acknowledged) {
+    req.flash('success', 'Successfully made a new campground');
+    res.status(201).redirect(`/campgrounds/${result.insertedId}`);
+  } else {
+    res.status(500).send('Failed to create a new campground');
+  }
 }));
 
 campRouter.get('/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id;
   const query = { _id: new mongodb.ObjectId(id) };
+
+  // check if campground is available
+  const camp = await collections.campgrounds?.findOne(query)
+  if (!camp) {
+    req.flash('error', 'Cannot find that campground!');
+    return res.redirect('/campgrounds') // return is important to ensure the rest don't execute
+  }
+
   const aggregationPipeline = [
     {$match: query},
     {$lookup: {
@@ -68,6 +77,13 @@ campRouter.get('/:id/edit', asyncHandler(async (req: Request, res: Response, nex
   const id = req.params.id;
   const query = { _id: new mongodb.ObjectId(id) };
 
+  // check if campground is available before updating.
+  const camp = await collections.campgrounds?.findOne(query)
+  if (!camp) {
+    req.flash('error', 'Cannot find that campground!');
+    return res.redirect('/campgrounds') // return is important to ensure the rest don't execute
+  }
+
   const campground = await collections.campgrounds?.findOne(query);
   res.render('pages/edit', { campground });
 }));
@@ -75,6 +91,7 @@ campRouter.get('/:id/edit', asyncHandler(async (req: Request, res: Response, nex
 campRouter.put('/:id',validateCampground, asyncHandler(async (req:Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   const query = { _id: new mongodb.ObjectId(id) };
+
   // The line below converts price which is a string to a float first
   // all data submitted through forms are sent as strings
   const campground: Campground = { ...req.body.campground, price: parseFloat(req.body.campground.price)};
@@ -83,7 +100,7 @@ campRouter.put('/:id',validateCampground, asyncHandler(async (req:Request, res: 
   });
 
   if (result && result.matchedCount) {
-    console.log(`Updated a Campground: ID ${id}.`);
+    req.flash('success', 'Successfully updated campground');
     res.redirect(`/campgrounds/${id}`);
   } else if (result!.matchedCount) {
     res.status(404).send(`Failed to find a Campground: ID ${id}`);
@@ -108,8 +125,9 @@ const { id } = req.params;
     }
     // Delete campground.
     const result = await collections.campgrounds?.deleteOne(query);
-    if (result?.acknowledged === true && reviewIds.length === reviewDeletion?.deletedCount) {
-      console.log("Deleted the campground and its reviews")
+
+    if (result?.acknowledged === true) {
+      req.flash('success', 'Successfully deleted the campgroud');
       res.redirect('/campgrounds')
     } else {
         console.log("Deletion failed.")

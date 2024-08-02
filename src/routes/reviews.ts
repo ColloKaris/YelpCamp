@@ -35,6 +35,7 @@ reviewsRouter.post('/', validateReview , asyncHandler((async (req, res) => {
     {_id:new mongodb.ObjectId(campgroundId)}, { $push: {reviews: reviewId}});
 
   if (reviewedCamp?.modifiedCount === 1) {
+    req.flash('success', 'Created a new review!')
     res.redirect(`/campgrounds/${campgroundId}`)
   } else if(reviewedCamp?.matchedCount === 0) {
     res.status(400).send(`Failed to find a Campground: ID ${campgroundId}`);
@@ -50,19 +51,14 @@ reviewsRouter.delete('/:reviewId', asyncHandler(async (req: Request, res: Respon
   const filter = { _id: new mongodb.ObjectId(id) };
   const queryCamp = {$pull: {reviews: reviewObjId}};
   const resultCamp = await collections.campgrounds?.updateOne(filter, queryCamp);
-  if(resultCamp?.modifiedCount === 1) {
-    console.log(`Deleted review reference`)
-  } else {
-    console.log('Failed to delete review reference in Campground')
-  }
-
+  
   // Delete the actual review from the reviews collection.
   const result = await collections.reviews?.deleteOne({ _id: reviewObjId })
-  if(result?.acknowledged === true && result?.deletedCount ===1) {
-    console.log(`Deleted review with reviewId ${reviewId}`)
+  if(result?.acknowledged === true && result?.deletedCount ===1 && resultCamp?.modifiedCount === 1) {
+    req.flash('success', 'Successfully deleted review and its reference')
+    res.redirect(`/campgrounds/${id}`)
   } else {
     console.log('Failed to delete review in reviews collection')
   }
-
-  res.redirect(`/campgrounds/${id}`)
+  
 }))
