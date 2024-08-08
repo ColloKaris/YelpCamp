@@ -62,12 +62,16 @@ async function applySchemaValidation(db: mongodb.Db) {
   const userSchema = {
     $jsonSchema: {
       bsonType: "object",
-      required: ['username', 'password'],
+      required: ['username', 'password', 'email', '_id'],
       properties: {
         _id:{},
         username: {
           bsonType: 'string',
           description: 'A username to identify a user'
+        },
+        email: {
+          bsonType: 'string',
+          description: 'An email address for the user'
         },
         password: {
           bsonType: 'string',

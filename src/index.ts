@@ -7,12 +7,13 @@ import methodOverride from 'method-override';
 import session from 'express-session';
 import flash from 'connect-flash';
 import passport from 'passport';
-// import local- from 'passport-local';
 
 import { connectToDatabase } from './models/database.js';
 import { ExpressError } from './utils/ExpressError.js';
 import { campRouter } from './routes/campgrounds.js';
 import { reviewsRouter } from './routes/reviews.js';
+import { userRouter } from './routes/users.js';
+
 import { User } from './models/user.js';
 import { localStrategy } from './strategies/localStrategy.js';
 
@@ -53,12 +54,6 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 app.use(flash())
 
-// Passport
-app.use(passport.initialize()); // Initialize passport
-app.use(passport.session());
-passport.use(localStrategy);
-
-
 // Middleware for flashing - Put before route handlers
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.locals.success = req.flash('success');
@@ -66,10 +61,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 })
 
+// Passport - Should be AFTER session, and BEFORE the router
+app.use(passport.initialize()); // Initialize passport
+app.use(passport.session());
+passport.use(localStrategy);
+
 app.use('/campgrounds', campRouter)
 app.use('/campgrounds/:id/reviews', reviewsRouter)
+app.use('/', userRouter)
 
-// Routing logic - To be moved later
 app.get('/', (req, res) => {
   res.render('pages/home');
 });

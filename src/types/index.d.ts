@@ -6,6 +6,7 @@ declare global {
       _id: mongodb.ObjectId;
       username: string;
       password: string;
+      email: string;
     }
   }
 }
