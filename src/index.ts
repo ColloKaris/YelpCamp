@@ -4,13 +4,17 @@ import { fileURLToPath } from 'url';
 import * as dotenv from 'dotenv';
 import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
-import session from 'express-session'
-import flash from 'connect-flash'
+import session from 'express-session';
+import flash from 'connect-flash';
+import passport from 'passport';
+// import local- from 'passport-local';
 
 import { connectToDatabase } from './models/database.js';
 import { ExpressError } from './utils/ExpressError.js';
 import { campRouter } from './routes/campgrounds.js';
-import { reviewsRouter } from './routes/reviews.js'
+import { reviewsRouter } from './routes/reviews.js';
+import { User } from './models/user.js';
+import { localStrategy } from './strategies/localStrategy.js';
 
 const app = express();
 dotenv.config();
@@ -35,6 +39,7 @@ app.set('layout', 'layouts/main')
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public'))) // set express to serve static files in the public directory
+
 const sessionConfig = {
   secret: 'thisshouldbeabettersecret!',
   resave: false,
@@ -47,6 +52,12 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 app.use(flash())
+
+// Passport
+app.use(passport.initialize()); // Initialize passport
+app.use(passport.session());
+passport.use(localStrategy);
+
 
 // Middleware for flashing - Put before route handlers
 app.use((req: Request, res: Response, next: NextFunction) => {

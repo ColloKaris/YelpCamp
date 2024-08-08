@@ -1,11 +1,13 @@
 import * as mongodb from 'mongodb';
 import { Campground } from './campground.js';
 import { Review } from './review.js';
+import { User } from './user.js';
 
 // An object to hold all the collections that will be created in this project
 export const collections: {
-  campgrounds?: mongodb.Collection<Campground>
-  reviews?: mongodb.Collection<Review>
+  campgrounds?: mongodb.Collection<Campground>,
+  reviews?: mongodb.Collection<Review>,
+  users?: mongodb.Collection<User>
 } = {};
 
 // CONNECTING TO THE DATABASE
@@ -25,6 +27,8 @@ export async function connectToDatabase(uri: string) {
 
   const reviewsCollection = db.collection<Review>("reviews");
   collections.reviews = reviewsCollection;
+
+  collections.users = db.collection<User>('users');
 
   return client; // returns client so that we can use it to close 
   //database connection in other files - I used this client in the seeds/index.ts file
@@ -50,6 +54,24 @@ async function applySchemaValidation(db: mongodb.Db) {
         rating: {
           bsonType: 'number',
           description: 'This is the rating and it should be a number'
+        }
+      }
+    }
+  }
+
+  const userSchema = {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ['username', 'password'],
+      properties: {
+        _id:{},
+        username: {
+          bsonType: 'string',
+          description: 'A username to identify a user'
+        },
+        password: {
+          bsonType: 'string',
+          description: 'Hashed version of the user password'
         }
       }
     }
@@ -101,6 +123,14 @@ async function applySchemaValidation(db: mongodb.Db) {
       await db.createCollection("campgrounds", {validator: campgroundSchema})
     }
   })
+
+  // Try modify the User collection or explicitly create it if it doesn't exist
+  await db.command({collMod: 'users', validator: userSchema})
+    .catch(async (error: mongodb.MongoServerError) => {
+      if (error.codename === 'NamespaceNotFound') {
+        await db.createCollection('users', {validator: userSchema})
+      }
+    })
 
   // Apply the same modification for the reviews collection
   await db.command({
