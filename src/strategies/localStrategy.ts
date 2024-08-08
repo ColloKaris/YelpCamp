@@ -29,8 +29,6 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id: mongodb.ObjectId, done) => {
   try {
-    console.log('Inside Deserialize User');
-    
     const user = await collections.users?.findOne({_id: new mongodb.ObjectId(id)});
     console.log(`Deserializing User ID: ${id}`)
     console.log(user);

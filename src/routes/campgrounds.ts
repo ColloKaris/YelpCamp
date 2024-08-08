@@ -1,35 +1,24 @@
 import express, { Request, Response, NextFunction} from 'express';
 import * as mongodb from 'mongodb';
 
-import { campgroundSchema } from '../models/joiSchemas.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { collections } from '../models/database.js';
 import { Campground } from '../models/campground.js';
-import { ExpressError } from '../utils/ExpressError.js';
+import { isLoggedIn, validateCampground} from '../middleware/middleware.js';
 
 
 export const campRouter = express.Router({mergeParams: true});
-
-// Validation middlewares - Campground validation using Joi
-const validateCampground = (req: Request, res: Response, next: NextFunction) => {
-  const { error } = campgroundSchema.validate(req.body)
-  if (error) {
-    throw new ExpressError(error.message, 400)
-  } else {
-    next();
-  }
-}
 
 campRouter.get('/', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const campgrounds = await collections.campgrounds?.find({}).toArray();
   res.render('pages/index', { campgrounds });
 }));
 
-campRouter.get('/new', (req, res) => {
-res.render('pages/new');
+campRouter.get('/new', isLoggedIn, (req, res) => {
+  res.render('pages/new');
 });
 
-campRouter.post('/',validateCampground, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+campRouter.post('/', isLoggedIn, validateCampground, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const campground = req.body.campground;
   campground.reviews = [];
   campground.price = parseFloat(campground.price);
@@ -73,7 +62,7 @@ campRouter.get('/:id', asyncHandler(async (req: Request, res: Response, next: Ne
   }
 }));
 
-campRouter.get('/:id/edit', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+campRouter.get('/:id/edit', isLoggedIn, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id;
   const query = { _id: new mongodb.ObjectId(id) };
 
@@ -88,7 +77,7 @@ campRouter.get('/:id/edit', asyncHandler(async (req: Request, res: Response, nex
   res.render('pages/edit', { campground });
 }));
 
-campRouter.put('/:id',validateCampground, asyncHandler(async (req:Request, res: Response, next: NextFunction) => {
+campRouter.put('/:id', isLoggedIn, validateCampground, asyncHandler(async (req:Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   const query = { _id: new mongodb.ObjectId(id) };
 
@@ -109,7 +98,7 @@ campRouter.put('/:id',validateCampground, asyncHandler(async (req:Request, res: 
   }
 }));
 
-campRouter.delete('/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+campRouter.delete('/:id', isLoggedIn, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
 // Best implementation is to use transactions  
 const { id } = req.params;
   const query = { _id: new mongodb.ObjectId(id) };
