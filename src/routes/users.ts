@@ -32,3 +32,12 @@ userRouter.post('/register', asyncHandler(async (req: Request, res: Response, ne
     res.redirect('/register');
   }
 }));
+
+userRouter.get('/login', (req: Request, res: Response, next: NextFunction) => {
+  res.render('pages/login');
+})
+
+userRouter.post('/login', passport.authenticate('local',{failureFlash: true, failureRedirect: '/login'}), (req: Request, res: Response, next: NextFunction) => {
+  req.flash('success', 'Welcome back!');
+  res.redirect('/campgrounds')
+})

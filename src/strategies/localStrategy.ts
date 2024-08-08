@@ -10,13 +10,13 @@ export const localStrategy = new Strategy(async (username, password, done) => {
   try {
     // Check if the actual user exists.
     const user = await collections.users?.findOne({ username: username });
-    if (!user) throw new Error("INCORRECT USERNAME OR PASSWORD");
+    if (!user) return done(null, false, { message: "INCORRECT USERNAME OR PASSWORD" });
 
     // Check if the username and passwords match.
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) throw new Error("INCORRECT USERNAME OR PASSWORD ");
+    if (!validPassword) return done(null, false, { message: "INCORRECT USERNAME OR PASSWORD" });
     done(null, user);
-  } catch (err) {
+  } catch (err: any) {
     return done(err); // can have another argument null, false
   }
 });
