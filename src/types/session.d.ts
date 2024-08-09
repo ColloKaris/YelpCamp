@@ -3,6 +3,7 @@ import * as mongodb from 'mongodb';
 
 declare module 'express-session' {
   interface SessionData {
-    passport: {user: mongodb.ObjectId}
+    passport: {user: mongodb.ObjectId},
+    returnTo?: string
   }
 }

@@ -54,17 +54,18 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 app.use(flash())
 
-// Middleware for flashing - Put before route handlers
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error')
-  next();
-})
-
 // Passport - Should be AFTER session, and BEFORE the router
 app.use(passport.initialize()); // Initialize passport
 app.use(passport.session());
 passport.use(localStrategy);
+
+// Middleware for flashing - Put before route handlers
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  res.locals.currentUser = req.user;
+  next();
+})
 
 app.use('/campgrounds', campRouter)
 app.use('/campgrounds/:id/reviews', reviewsRouter)

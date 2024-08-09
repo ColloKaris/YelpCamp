@@ -4,6 +4,7 @@ import { campgroundSchema } from '../models/joiSchemas.js';
 
 export const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
   if(!req.isAuthenticated()) {
+    req.session.returnTo = req.originalUrl; 
     req.flash('error', 'You must be signed in first!');
     return res.redirect('/login');
   }
@@ -18,5 +19,13 @@ export const validateCampground = (req: Request, res: Response, next: NextFuncti
   } else {
     next();
   }
+}
+
+// Middleware to save returnTo value from the session to res.locals
+export const storeReturnTo = (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.returnTo) {
+    res.locals.returnTo = req.session.returnTo;
+  }
+  next();
 }
 

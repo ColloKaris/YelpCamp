@@ -4,6 +4,7 @@ import passport from 'passport';
 
 import { collections } from '../models/database.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { storeReturnTo } from '../middleware/middleware.js';
 
 export const userRouter = express.Router();
 
@@ -36,9 +37,10 @@ userRouter.get('/login', (req: Request, res: Response, next: NextFunction) => {
   res.render('pages/login');
 })
 
-userRouter.post('/login', passport.authenticate('local',{failureFlash: true, failureRedirect: '/login'}), (req: Request, res: Response, next: NextFunction) => {
+userRouter.post('/login', storeReturnTo, passport.authenticate('local',{failureFlash: true, failureRedirect: '/login'}), (req: Request, res: Response, next: NextFunction) => {
   req.flash('success', 'Welcome back!');
-  res.redirect('/campgrounds')
+  const redirectUrl = res.locals.returnTo || '/campgrounds';
+  res.redirect(redirectUrl);
 })
 
 userRouter.post('/logout', (req: Request, res: Response, next: NextFunction) => {
