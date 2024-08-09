@@ -22,16 +22,12 @@ export const localStrategy = new Strategy(async (username, password, done) => {
 });
 
 passport.serializeUser((user, done) => {
-  console.log('Inside Serialize User');
-  console.log(user);
   done(null, user._id);
 })
 
 passport.deserializeUser(async (id: mongodb.ObjectId, done) => {
   try {
     const user = await collections.users?.findOne({_id: new mongodb.ObjectId(id)});
-    console.log(`Deserializing User ID: ${id}`)
-    console.log(user);
     if (!user) throw new Error("User Not Found!");
     done(null, user)
   } catch (err) {

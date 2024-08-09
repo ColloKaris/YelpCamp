@@ -5,7 +5,6 @@ import passport from 'passport';
 import { collections } from '../models/database.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
-
 export const userRouter = express.Router();
 
 userRouter.get('/register', (req: Request, res: Response) => {
@@ -40,4 +39,12 @@ userRouter.get('/login', (req: Request, res: Response, next: NextFunction) => {
 userRouter.post('/login', passport.authenticate('local',{failureFlash: true, failureRedirect: '/login'}), (req: Request, res: Response, next: NextFunction) => {
   req.flash('success', 'Welcome back!');
   res.redirect('/campgrounds')
+})
+
+userRouter.post('/logout', (req: Request, res: Response, next: NextFunction) => {
+  req.logout((err) => {
+    if (err) return next(err);
+    req.flash('success', 'Goodbye');
+    res.redirect('/campgrounds')
+  });
 })
