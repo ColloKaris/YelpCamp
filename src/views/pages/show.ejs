@@ -19,15 +19,19 @@
         </li>
         <li class="list-group-item">$<%= campground.price %>/night</li>
       </ul>
-      <div class="card-body">
-        <a href="/campgrounds/<%=campground._id%>/edit" class="card-link btn btn-info">Edit</a>
-        <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE" method="POST">
-          <button class="btn btn-danger">Delete</button>
-        </form>
-      </div>
-      <div class="card-footer text-muted">2 days ago</div>
+
+      <% if ( currentUser && campground.author.toString() === currentUser._id.toString()) { %>
+        <div class="card-body">
+          <a href="/campgrounds/<%=campground._id%>/edit" class="card-link btn btn-info">Edit</a>
+          <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE" method="POST">
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+        <% } %>
+          <div class="card-footer text-muted">2 days ago</div>
     </div>
-     <!-- <a href="/campgrounds">All campgrounds</a> -->
+
+    <!-- <a href="/campgrounds">All campgrounds</a> -->
   </div>
   <div class="col-6">
     <h2>Leave a review</h2>
