@@ -46,6 +46,7 @@ const seedDB = async () => {
       price: Math.floor(Math.random() * 20) + 10,
       description: `${sample(descriptors)}`,
       location: `${cities[random1000].city}, ${cities[random1000].state}`,
+      author: new mongodb.ObjectId("66b468a67cfa158b5a23a772"),
       reviews: []
     }
     // insert campground in the database

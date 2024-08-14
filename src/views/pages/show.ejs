@@ -14,6 +14,9 @@
         <li class="list-group-item text-muted">
           <%= campground.location %>
         </li>
+        <li class="list-group-item">
+          Submitted by: <%= campground.authorDetails.username %>
+        </li>
         <li class="list-group-item">$<%= campground.price %>/night</li>
       </ul>
       <div class="card-body">

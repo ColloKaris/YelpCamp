@@ -8,6 +8,7 @@ export const campgroundSchema = Joi.object({
     price: Joi.number().positive().required(),
     description: Joi.string().min(1).required(),
     location: Joi.string().min(1).required(),
+    author: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
     reviews: Joi.array()
       .items(Joi.string().pattern(/^[a-fA-F0-9]{24}$/))
       .default([]) ,

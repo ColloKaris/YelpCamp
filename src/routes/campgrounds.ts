@@ -22,6 +22,7 @@ campRouter.post('/', isLoggedIn, validateCampground, asyncHandler(async (req: Re
   const campground = req.body.campground;
   campground.reviews = [];
   campground.price = parseFloat(campground.price);
+  campground.author = req.user?._id;
   const result = await collections.campgrounds?.insertOne(campground);
   if (result?.acknowledged) {
     req.flash('success', 'Successfully made a new campground');
@@ -49,12 +50,18 @@ campRouter.get('/:id', asyncHandler(async (req: Request, res: Response, next: Ne
       localField: "reviews",
       foreignField: "_id",
       as: "campgroundReviews"
-    }}
+    }},
+    {$lookup: {
+      from: "users",
+      localField: "author",
+      foreignField: "_id",
+      as: "authorDetails" 
+    }},
+    {$unwind: "$authorDetails"}
   ]
   
   const campgroundAsArray = await collections.campgrounds?.aggregate(aggregationPipeline).toArray()
-  
-  if (campgroundAsArray) {
+    if (campgroundAsArray) {
     const campground = campgroundAsArray[0];
     res.render('pages/show', { campground });
   } else {
