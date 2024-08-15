@@ -44,12 +44,16 @@ async function applySchemaValidation(db: mongodb.Db) {
   const reviewsSchema = {
     $jsonSchema: {
       bsonType: "object",
-      required: ['body', 'rating'],
+      required: ['body', 'rating', 'author'],
       properties: {
         _id:{},
         body:{
           bsonType: 'string',
           description: 'This is the body of the review and must not be empty'
+        },
+        author: {
+          bsonType: 'string',
+          description: 'The username of the owner of the review'
         },
         rating: {
           bsonType: 'number',

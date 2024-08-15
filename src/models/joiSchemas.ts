@@ -22,5 +22,6 @@ export const reviewSchema = Joi.object({
   review: Joi.object({
     body: Joi.string().min(1).required(),
     rating: Joi.number().min(1).max(5).required(),
+    author: Joi.string().min(1),
   }).required(),
 });

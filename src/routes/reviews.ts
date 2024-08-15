@@ -5,6 +5,7 @@ import { reviewSchema } from '../models/joiSchemas.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { collections } from '../models/database.js';
 import { ExpressError } from '../utils/ExpressError.js';
+import { isLoggedIn } from '../middleware/middleware.js';
 
 // mergeParams ensure that all params are also going to be merged to params
 // in this router. Issue arises when you prefix it in another fle
@@ -21,10 +22,11 @@ const validateReview = (req: Request, res: Response, next: NextFunction) => {
 }
 
 // Add a review.
-reviewsRouter.post('/', validateReview , asyncHandler((async (req, res) => {
+reviewsRouter.post('/', isLoggedIn, validateReview , asyncHandler((async (req, res) => {
   const campgroundId = req.params.id;
   const review = req.body.review;
   review.rating = parseFloat(review.rating)
+  review.author = req.user?.username;
 
   // create review
   const result = await collections.reviews?.insertOne(review)
@@ -43,7 +45,9 @@ reviewsRouter.post('/', validateReview , asyncHandler((async (req, res) => {
 })))
 
 // Delete a review.
-reviewsRouter.delete('/:reviewId', asyncHandler(async (req: Request, res: Response) => {
+reviewsRouter.delete('/:reviewId', isLoggedIn, asyncHandler(async (req: Request, res: Response) => {
+  // Have not implemented logic to protect the backend
+  // such that you can't send a request to delete a review they don't own
   const { id, reviewId } = req.params;
   const reviewObjId = new mongodb.ObjectId(reviewId); 
   
@@ -60,5 +64,4 @@ reviewsRouter.delete('/:reviewId', asyncHandler(async (req: Request, res: Respon
   } else {
     console.log('Failed to delete review in reviews collection')
   }
-  
 }))

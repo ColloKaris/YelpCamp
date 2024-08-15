@@ -71,22 +71,25 @@ campRouter.get('/:id', asyncHandler(async (req: Request, res: Response, next: Ne
 
 campRouter.get('/:id/edit', isLoggedIn, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id;
-  const query = { _id: new mongodb.ObjectId(id) };
+  const query = { _id: new mongodb.ObjectId(id) , author: new mongodb.ObjectId(req.user!._id)};
 
   // check if campground is available before updating.
-  const camp = await collections.campgrounds?.findOne(query)
-  if (!camp) {
+  const campground = await collections.campgrounds?.findOne(query)
+  if(campground?.author.toString() !== req.user?._id.toString()) {
+    req.flash('error', 'You do not have permission to do that');
+    return res.redirect(`/campgrounds/${id}`);
+  
+  }
+  if (!campground) {
     req.flash('error', 'Cannot find that campground!');
     return res.redirect('/campgrounds') // return is important to ensure the rest don't execute
   }
-
-  const campground = await collections.campgrounds?.findOne(query);
   res.render('pages/edit', { campground });
 }));
 
 campRouter.put('/:id', isLoggedIn, validateCampground, asyncHandler(async (req:Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
-  const query = { _id: new mongodb.ObjectId(id) };
+  const query = { _id: new mongodb.ObjectId(id), author: new mongodb.ObjectId(req.user!._id) };
 
   // The line below converts price which is a string to a float first
   // all data submitted through forms are sent as strings
@@ -98,17 +101,16 @@ campRouter.put('/:id', isLoggedIn, validateCampground, asyncHandler(async (req:R
   if (result && result.matchedCount) {
     req.flash('success', 'Successfully updated campground');
     res.redirect(`/campgrounds/${id}`);
-  } else if (result!.matchedCount) {
-    res.status(404).send(`Failed to find a Campground: ID ${id}`);
   } else {
-    res.status(304).send(`Failed to update Campground: ID ${id}`);
+    req.flash('error', 'You do not have permission to do that');
+    return res.redirect(`/campgrounds/${id}`);
   }
 }));
 
 campRouter.delete('/:id', isLoggedIn, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
 // Best implementation is to use transactions  
-const { id } = req.params;
-  const query = { _id: new mongodb.ObjectId(id) };
+  const { id } = req.params;
+  const query = { _id: new mongodb.ObjectId(id), author: new mongodb.ObjectId(req.user!._id) };
   
   // Retrieve campground and its id
   const camp = await collections.campgrounds?.findOne(query);

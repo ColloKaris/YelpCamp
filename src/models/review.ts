@@ -4,4 +4,5 @@ export interface Review {
   body: string;
   rating: number;
   _id?: mongodb.ObjectId;
+  author: string;
 }
