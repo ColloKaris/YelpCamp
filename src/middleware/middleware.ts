@@ -1,6 +1,6 @@
-import express, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ExpressError } from '../utils/ExpressError.js';
-import { campgroundSchema } from '../models/joiSchemas.js';
+import { campgroundSchema, reviewSchema } from '../models/joiSchemas.js';
 
 export const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
   if(!req.isAuthenticated()) {
@@ -14,6 +14,15 @@ export const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
 // Validation middlewares - Campground validation using Joi
 export const validateCampground = (req: Request, res: Response, next: NextFunction) => {
   const { error } = campgroundSchema.validate(req.body)
+  if (error) {
+    throw new ExpressError(error.message, 400)
+  } else {
+    next();
+  }
+}
+// Reviews validation using Joi
+export const validateReview = (req: Request, res: Response, next: NextFunction) => {
+  const { error } = reviewSchema.validate(req.body)
   if (error) {
     throw new ExpressError(error.message, 400)
   } else {
