@@ -7,12 +7,12 @@ import { login, logout, register, renderLogin, renderRegister } from '../control
 
 export const userRouter = express.Router();
 
-userRouter.get('/register', renderRegister)
+userRouter.route('/register')
+  .get(renderRegister)
+  .post(asyncHandler(register));
 
-userRouter.post('/register', asyncHandler(register));
-
-userRouter.get('/login', renderLogin);
-
-userRouter.post('/login', storeReturnTo, passport.authenticate('local',{failureFlash: true, failureRedirect: '/login'}), login);
+userRouter.route('/login')
+  .get(renderLogin)
+  .post(storeReturnTo, passport.authenticate('local',{failureFlash: true, failureRedirect: '/login'}), login);
 
 userRouter.post('/logout', logout);

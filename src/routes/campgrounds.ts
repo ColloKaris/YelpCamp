@@ -7,16 +7,15 @@ import {createCampground, deleteCampground, index, renderEditForm, renderNewForm
 
 export const campRouter = express.Router({mergeParams: true});
 
-campRouter.get('/', asyncHandler(index));
+campRouter.route('/')
+  .get(asyncHandler(index))
+  .post(isLoggedIn, validateCampground, asyncHandler(createCampground));
 
 campRouter.get('/new', isLoggedIn, renderNewForm);
 
-campRouter.post('/', isLoggedIn, validateCampground, asyncHandler(createCampground));
-
-campRouter.get('/:id', asyncHandler(showCampground));
+campRouter.route('/:id')
+  .get(asyncHandler(showCampground))
+  .put(isLoggedIn, validateCampground, asyncHandler(updateCampground))
+  .delete(isLoggedIn, asyncHandler(deleteCampground));
 
 campRouter.get('/:id/edit', isLoggedIn, asyncHandler(renderEditForm));
-
-campRouter.put('/:id', isLoggedIn, validateCampground, asyncHandler(updateCampground));
-
-campRouter.delete('/:id', isLoggedIn, asyncHandler(deleteCampground));
