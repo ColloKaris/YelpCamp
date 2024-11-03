@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction} from 'express';
+import { ATLAS_URI } from './config/config.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
-import * as dotenv from 'dotenv';
 import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
 import session from 'express-session';
@@ -18,14 +18,21 @@ import { User } from './models/user.js';
 import { localStrategy } from './strategies/localStrategy.js';
 
 const app = express();
-dotenv.config();
-const { ATLAS_URI } = process.env;
+// if (process.env.NODE_ENV !== "production") {
+//   dotenv.config()
+//   console.log('Main File', process.env)
+// }
+// const { ATLAS_URI } = process.env;
 
 //check if ATLAS_URI defined, otherwise, exit app
-if (!ATLAS_URI) {
-  console.log('No ATLAS_URI environment variable has been defined');
-  process.exit(1); // uncaught fatal execption(1)
-}
+// This was commented out after changing where I check for environment variables
+// This is done in the config/config.ts file. This change was made to handle
+// missing environment variables when working with cloudinary
+
+// if (!ATLAS_URI) {
+//   console.log('No ATLAS_URI environment variable has been defined');
+//   process.exit(1); // uncaught fatal execption(1)
+// }
 
 // Use import.meta.url to get the current module's URL
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +44,7 @@ app.set('views', path.join(__dirname, '/views'));
 app.use(expressEjsLayouts); // xpress layouts to make templating easier
 app.set('layout', 'layouts/main')
 
+app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public'))) // set express to serve static files in the public directory
@@ -88,7 +96,7 @@ app.use((err: ExpressError, req: Request, res: Response, next: NextFunction) => 
 })
 
 // End of routing logic
-connectToDatabase(ATLAS_URI)
+connectToDatabase(ATLAS_URI as string)
   .then(() => {
     //const app = express();
     console.log('Database connected');

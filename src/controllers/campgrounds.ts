@@ -1,8 +1,12 @@
 import {Request, Response, NextFunction} from 'express';
 import * as mongodb from 'mongodb';
+import multer from 'multer';
 
 import { collections } from '../models/database.js';
 import { Campground } from '../models/campground.js';
+import { storage, cloudinary} from '../cloudinary/index.js';
+
+const upload = multer({storage: storage})
 
 export const index = async (req: Request, res: Response, next: NextFunction) => {
   const campgrounds = await collections.campgrounds?.find({}).toArray();
@@ -16,8 +20,21 @@ export const renderNewForm = (req: Request, res: Response) => {
 export const createCampground = async (req: Request, res: Response, next: NextFunction) => {
   const campground = req.body.campground;
   campground.reviews = [];
+  campground.images = [];
   campground.price = parseFloat(campground.price);
   campground.author = req.user?._id;
+
+  // Upload image to cloudinary
+  for (const file of req.files as Express.Multer.File[]) {
+    const result = await cloudinary.uploader.upload(file.path, {asset_folder: 'YelpCamp'})
+    const imageObject = {
+      url: result.secure_url,
+      public_id: result.public_id
+    }
+    campground.images.push(imageObject)
+  }
+
+  // Add the campground to the database
   const result = await collections.campgrounds?.insertOne(campground);
   if (result?.acknowledged) {
     req.flash('success', 'Successfully made a new campground');

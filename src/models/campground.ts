@@ -2,7 +2,7 @@ import * as mongodb from 'mongodb';
 
 export interface Campground {
   title: string;
-  image: string;
+  images: { url: string, public_id: string; }[];
   price: number;
   description: string;
   location: string;
