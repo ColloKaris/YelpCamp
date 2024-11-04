@@ -1,12 +1,12 @@
 import {Request, Response, NextFunction} from 'express';
 import * as mongodb from 'mongodb';
-import multer from 'multer';
+// import multer from 'multer';
 
 import { collections } from '../models/database.js';
 import { Campground } from '../models/campground.js';
 import { storage, cloudinary} from '../cloudinary/index.js';
 
-const upload = multer({storage: storage})
+// const upload = multer({storage: storage})
 
 export const index = async (req: Request, res: Response, next: NextFunction) => {
   const campgrounds = await collections.campgrounds?.find({}).toArray();
@@ -106,8 +106,20 @@ export const updateCampground = async (req:Request, res: Response, next: NextFun
   // The line below converts price which is a string to a float first
   // all data submitted through forms are sent as strings
   const campground: Campground = { ...req.body.campground, price: parseFloat(req.body.campground.price)};
+  // Update image by uploading to cloudinary
+  const updateImages = []
+  for (const file of req.files as Express.Multer.File[]) {
+    const result = await cloudinary.uploader.upload(file.path, {asset_folder: 'YelpCamp'})
+    const imageObject = {
+      url: result.secure_url,
+      public_id: result.public_id
+    }
+    updateImages.push(imageObject)
+  }
+  
   const result = await collections.campgrounds?.updateOne(query, {
     $set: campground,
+    $push: {images: {$each: updateImages}}
   });
 
   if (result && result.matchedCount) {

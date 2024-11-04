@@ -7,7 +7,6 @@ import { Campground } from '../models/campground.js';
 import { connectToDatabase, collections } from '../models/database.js';
 import { cities } from './cities.js';
 import { descriptors, places } from './seedHelpers.js';
-import { deepEqual } from 'assert';
 
 dotenv.config();
 
@@ -65,5 +64,3 @@ const seedDB = async () => {
 }
 
 main()
-
-// image: `https://picsum.photos/400?random=${Math.random()}`,
