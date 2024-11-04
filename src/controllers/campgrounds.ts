@@ -1,12 +1,9 @@
 import {Request, Response, NextFunction} from 'express';
 import * as mongodb from 'mongodb';
-// import multer from 'multer';
 
 import { collections } from '../models/database.js';
 import { Campground } from '../models/campground.js';
 import { storage, cloudinary} from '../cloudinary/index.js';
-
-// const upload = multer({storage: storage})
 
 export const index = async (req: Request, res: Response, next: NextFunction) => {
   const campgrounds = await collections.campgrounds?.find({}).toArray();

@@ -6,8 +6,7 @@ import { isLoggedIn, validateCampground} from '../middleware/middleware.js';
 import { createCampground, deleteCampground, index, renderEditForm, renderNewForm, showCampground, updateCampground} from '../controllers/campgrounds.js'
 import { storage, cloudinary} from '../cloudinary/index.js';
 
-// cloudinary.config(cloudinary_config_options)
-const upload = multer({storage: storage})
+const upload = multer({storage: storage, limits: {fileSize: 500 * 1024, files: 5}})
 
 export const campRouter = express.Router({mergeParams: true});
 
