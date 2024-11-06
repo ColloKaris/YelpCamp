@@ -100,9 +100,18 @@ export const updateCampground = async (req:Request, res: Response, next: NextFun
   const { id } = req.params;
   const query = { _id: new mongodb.ObjectId(id), author: new mongodb.ObjectId(req.user!._id) };
 
-  // The line below converts price which is a string to a float first
-  // all data submitted through forms are sent as strings
+  // // The line below converts price which is a string to a float first
+  // // all data submitted through forms are sent as strings
   const campground: Campground = { ...req.body.campground, price: parseFloat(req.body.campground.price)};
+  // Query to delete images
+  const pullQuery = {$pull: {images: {public_id: {$in: req.body.deleteImages}}}}
+
+  // 1st Update - delete images if there are any images to delete
+  if (req.body.deleteImages) {
+    await cloudinary.api.delete_resources(req.body.deleteImages)
+    await collections.campgrounds?.updateOne(query, pullQuery)
+  }
+
   // Update image by uploading to cloudinary
   const updateImages = []
   for (const file of req.files as Express.Multer.File[]) {

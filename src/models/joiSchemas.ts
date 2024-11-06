@@ -21,6 +21,7 @@ export const campgroundSchema = Joi.object({
   // Add required() for the entire object(remember how forms submit under
   // a value campground or reviews)
   // You want the whole thing to be required
+  deleteImages: Joi.array()
 });
 
 export const reviewSchema = Joi.object({
