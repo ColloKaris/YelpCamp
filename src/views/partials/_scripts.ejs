@@ -22,12 +22,15 @@
 </script>
 
 <script>
-  mapboxgl.accessToken = 'pk.eyJ1IjoiY29sbG9rYXJpcyIsImEiOiJjbTM1ZWczazAwYjdzMmlzZjkxYmx3M2kxIn0.PKYDZN_sJN9afQN9ljwvyQ';
-  // mapboxgl.accessToken = process.env.MAPBOX_TOKEN
+  mapboxgl.accessToken = mapToken
+  const mapCoordinates = coordinates.split(',').map(Number) // convert to array or numbers
   const map = new mapboxgl.Map({
     container: 'map', // container ID
     style: 'mapbox://styles/mapbox/streets-v12', // style URL
-    center: [-74.5, 40], // starting position [lng, lat]
+    center: mapCoordinates, // starting position [lng, lat]
     zoom: 9, // starting zoom
   });
+
+  // Add a pin
+  new mapboxgl.Marker().setLngLat(mapCoordinates).addTo(map)
   </script>
