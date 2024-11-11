@@ -59,7 +59,7 @@ const seedDB = async () => {
       ],
       geometry: {
         'type': 'Point',
-        'coordinates': [-119.538329, 37.865101]
+        'coordinates': [cities[random1000].longitude, cities[random1000].latitude]
       }
     }
     // insert campground in the database
