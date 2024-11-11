@@ -1,6 +1,6 @@
 # YelpCamp
 
-This is a Node.js application built using TypeScript. It uses a MongoDB database, EJS for frontend rendering, implements user authorization, and authentication using sessions, and has full CRUD capabilities across all assets in the application. It also uses Cloudinary for media managment of images used in the application. Mapbox is used to create maps and enable forward geocoding.
+This is a Node.js application built using TypeScript. It uses a MongoDB database, EJS for frontend rendering, implements user authorization, and authentication using sessions, and has full CRUD capabilities across all assets in the application. It also uses Cloudinary for media managment of images used in the application. Mapbox is used to create maps, enable forward geocoding, display maps and facilite clustering campgrounds according to location.
 
 The goal of this project was to create a Node.js application that works just like YelpCamp.
 
@@ -15,8 +15,8 @@ The goal of this project was to create a Node.js application that works just lik
 - User authentication (login/register) with session management.
 - Full CRUD across campgrounds, users, and reviews.
 - A Model View Controller architecture
-- Maps with forward geocoding. Maps implmented using Mapbox.
-- Media managment using Cloudinary. You can upload, edit and delete images from cloudinary.
+- Maps with forward geocoding and clustering.
+- Media managment using Cloudinary.
 - Authorization for campground modification (only creators can edit/delete their campgrounds).
 - Flashing messages
 
