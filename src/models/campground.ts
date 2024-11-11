@@ -9,4 +9,8 @@ export interface Campground {
   author: mongodb.ObjectId,
   reviews: mongodb.ObjectId[],
   _id?: mongodb.ObjectId;
+  geometry: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
 }

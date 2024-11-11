@@ -17,6 +17,10 @@ export const campgroundSchema = Joi.object({
     reviews: Joi.array()
       .items(Joi.string().pattern(/^[a-fA-F0-9]{24}$/))
       .default([]),
+    geometry: Joi.object({
+      type: Joi.string().valid('Point').required(),
+      coordinates: Joi.array().items(Joi.number()).length(2).required()
+    })
   }).required(), // this final required is necessary
   // Add required() for the entire object(remember how forms submit under
   // a value campground or reviews)

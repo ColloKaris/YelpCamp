@@ -1,10 +1,8 @@
 # YelpCamp
 
-This is a Node.js application built using TypeScript. It uses a MongoDB database, EJS for frontend rendering, implements user authorization, and authentication using sessions, and has full CRUD capabilities across all assets in the application.
+This is a Node.js application built using TypeScript. It uses a MongoDB database, EJS for frontend rendering, implements user authorization, and authentication using sessions, and has full CRUD capabilities across all assets in the application. It also uses Cloudinary for media managment of images used in the application. Mapbox is used to create maps and enable forward geocoding.
 
-A key objective of the application was to use TypeScript and the official MongoDB Node.js driver, rather than using an ORM such as Mongoose, while implementing a RESTful architecture with authentication and authorization.
-
-The goal was to create a Node.js application that works just like YelpCamp.
+The goal of this project was to create a Node.js application that works just like YelpCamp.
 
 ## How to run the application:
 
@@ -16,19 +14,18 @@ The goal was to create a Node.js application that works just like YelpCamp.
 
 - User authentication (login/register) with session management.
 - Full CRUD across campgrounds, users, and reviews.
-- View details of campgrounds created by other users.
+- A Model View Controller architecture
+- Maps with forward geocoding. Maps implmented using Mapbox.
+- Media managment using Cloudinary. You can upload, edit and delete images from cloudinary.
 - Authorization for campground modification (only creators can edit/delete their campgrounds).
-- Allows uploading images to Cloudinary. The application limits size and nubmer of the images created.
+- Flashing messages
 
 ## Tech Stack:
 
-- **Backend**: Node.js, TypeScript, Express
-- **Database**: MongoDB
+- **Backend**: Node.js, TypeScript, Express 
+- **Database**: MongoDB using its official Node.js driver.
 - **Frontend**: EJS (Embedded JavaScript Templates)
 - **Authentication**: Passport.js with session-based authentication
-
-## Project Goals:
-
-- Use TypeScript and the official MongoDB Node.js driver.
-- Implement RESTful routes.
-- Enhance understanding of session-based authentication and user roles.
+- **Encryption**: Bcrypt
+- **Media Management**: Cloudinary
+- **Maps** : Mapbox

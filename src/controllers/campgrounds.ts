@@ -1,9 +1,13 @@
 import {Request, Response, NextFunction} from 'express';
 import * as mongodb from 'mongodb';
+import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding-v6.js";
+
 
 import { collections } from '../models/database.js';
 import { Campground } from '../models/campground.js';
-import { storage, cloudinary} from '../cloudinary/index.js';
+import { cloudinary} from '../cloudinary/index.js';
+
+const geocoder = mbxGeocoding({accessToken: process.env.MAPBOX_TOKEN as string});
 
 export const index = async (req: Request, res: Response, next: NextFunction) => {
   const campgrounds = await collections.campgrounds?.find({}).toArray();
@@ -15,11 +19,14 @@ export const renderNewForm = (req: Request, res: Response) => {
 }
 
 export const createCampground = async (req: Request, res: Response, next: NextFunction) => {
+  const geoData = await geocoder.forwardGeocode({query: req.body.campground.location, limit: 1}).send()
+    
   const campground = req.body.campground;
   campground.reviews = [];
   campground.images = [];
   campground.price = parseFloat(campground.price);
   campground.author = req.user?._id;
+  campground.geometry = geoData.body.features[0].geometry
 
   // Upload image to cloudinary
   for (const file of req.files as Express.Multer.File[]) {
