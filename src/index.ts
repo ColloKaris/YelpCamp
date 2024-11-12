@@ -50,11 +50,13 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public'))) // set express to serve static files in the public directory
 
 const sessionConfig = {
-  secret: 'thisshouldbeabettersecret!',
+  name: '_zrmhzy',
+  secret: process.env.SECRET as string,
   resave: false,
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
+    // secure: true,
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }
