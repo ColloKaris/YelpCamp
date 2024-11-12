@@ -8,7 +8,7 @@ The goal of this project was to create a Node.js application that works just lik
 
 1. Install dependencies: `npm install`
 2. Start the server: `npm start`
-3. Open your browser and go to: `http://localhost:3000/campgrounds`
+3. Open your browser and go to: `http://localhost:3000/`
 
 ## Features:
 
@@ -21,14 +21,18 @@ The goal of this project was to create a Node.js application that works just lik
 - Flashing messages
 - Once you login, you have access to full CRUD on campgrounds, images and reviews.
 - HTML sanitization to avoid malicious HTML being passed as input to any field
+- Client-side and server-side validations of user input
+- A campground you add shows up on the up. When a user is logged in, they can leave reviews to the various campgrounds.
 
 ## Tech Stack:
 
 - **Backend**: Node.js, TypeScript, Express 
-- **Database**: MongoDB using its official Node.js driver.
+- **Database**: MongoDB using its official Node.js driver. MongoDB Atlas used in deployment
 - **Frontend**: EJS (Embedded JavaScript Templates)
 - **Authentication**: Passport.js with session-based authentication
 - **Encryption**: Bcrypt
+- **Session store**: MongoDB
 - **Media Management**: Cloudinary
 - **Maps** : Mapbox
 - **Security**: Helmet, sanitize-html, JOI
+- **Deployment**: Render

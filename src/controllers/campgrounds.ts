@@ -1,13 +1,14 @@
 import {Request, Response, NextFunction} from 'express';
 import * as mongodb from 'mongodb';
 import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding-v6.js";
+import { MAPBOX_TOKEN } from '../config/config.js';
 
 
 import { collections } from '../models/database.js';
 import { Campground } from '../models/campground.js';
 import { cloudinary} from '../cloudinary/index.js';
 
-const geocoder = mbxGeocoding({accessToken: process.env.MAPBOX_TOKEN as string});
+const geocoder = mbxGeocoding({accessToken: MAPBOX_TOKEN as string});
 
 export const index = async (req: Request, res: Response, next: NextFunction) => {
   const campgrounds = await collections.campgrounds?.find({}).toArray();

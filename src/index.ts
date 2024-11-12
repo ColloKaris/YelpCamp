@@ -1,10 +1,11 @@
 import express, { Request, Response, NextFunction} from 'express';
-import { ATLAS_URI } from './config/config.js'
+import { ATLAS_URI, SECRET } from './config/config.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
 import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import flash from 'connect-flash';
 import passport from 'passport';
 import helmet from 'helmet';
@@ -14,26 +15,9 @@ import { ExpressError } from './utils/ExpressError.js';
 import { campRouter } from './routes/campgrounds.js';
 import { reviewsRouter } from './routes/reviews.js';
 import { userRouter } from './routes/users.js';
-
-import { User } from './models/user.js';
 import { localStrategy } from './strategies/localStrategy.js';
 
 const app = express();
-// if (process.env.NODE_ENV !== "production") {
-//   dotenv.config()
-//   console.log('Main File', process.env)
-// }
-// const { ATLAS_URI } = process.env;
-
-//check if ATLAS_URI defined, otherwise, exit app
-// This was commented out after changing where I check for environment variables
-// This is done in the config/config.ts file. This change was made to handle
-// missing environment variables when working with cloudinary
-
-// if (!ATLAS_URI) {
-//   console.log('No ATLAS_URI environment variable has been defined');
-//   process.exit(1); // uncaught fatal execption(1)
-// }
 
 // Use import.meta.url to get the current module's URL
 const __filename = fileURLToPath(import.meta.url);
@@ -50,9 +34,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public'))) // set express to serve static files in the public directory
 
+const store = MongoStore.create({
+  mongoUrl: ATLAS_URI,
+  dbName: 'yelp-camp',
+  touchAfter: 24 * 60 * 60,
+  crypto: {
+      secret: SECRET as string
+  }
+});
+
+store.on('error', function(e) {
+  console.log('Sessions Store Error', e)
+})
+
 const sessionConfig = {
+  store: store,
   name: '_zrmhzy',
-  secret: process.env.SECRET as string,
+  secret: SECRET as string,
   resave: false,
   saveUninitialized: true,
   cookie: {
