@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction} from 'express';
-import { ATLAS_URI, SECRET } from './config/config.js'
+import { ATLAS_URI, SECRET, PORT } from './config/config.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
 import expressEjsLayouts from 'express-ejs-layouts';
@@ -157,7 +157,7 @@ connectToDatabase(ATLAS_URI as string)
     //const app = express();
     console.log('Database connected');
 
-    app.listen(3000, () => {
+    app.listen(PORT, () => {
       console.log('SERVER LISTENING ON PORT 3000');
     });
   })
