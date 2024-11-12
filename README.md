@@ -19,6 +19,7 @@ The goal of this project was to create a Node.js application that works just lik
 - Media managment using Cloudinary.
 - Authorization for campground modification (only creators can edit/delete their campgrounds).
 - Flashing messages
+- Once you login, you have access to full CRUD on campgrounds, images and reviews.
 
 ## Tech Stack:
 

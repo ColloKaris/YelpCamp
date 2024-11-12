@@ -37,7 +37,7 @@ const sample = (array: typeof descriptors[] | typeof places) => array[Math.floor
 const seedDB = async () => {
   await collections.campgrounds?.deleteMany({});
 
-  for(let i = 0; i < 50; i++) {
+  for(let i = 0; i < 300; i++) {
     const random1000 = Math.floor(Math.random() * 1000);
     const campground: Campground = {
       title: `${sample(descriptors)} ${sample(places)}`,

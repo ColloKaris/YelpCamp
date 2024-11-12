@@ -2898,7 +2898,7 @@ export const cities = [
         state: "Washington",
     },
     {
-        city: "Lee's Summit",
+        city: "Lee Summit",
         growth_from_2000_to_2013: "31.2%",
         latitude: 38.9108408,
         longitude: -94.3821724,
