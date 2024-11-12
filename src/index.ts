@@ -7,6 +7,7 @@ import methodOverride from 'method-override';
 import session from 'express-session';
 import flash from 'connect-flash';
 import passport from 'passport';
+import helmet from 'helmet';
 
 import { connectToDatabase } from './models/database.js';
 import { ExpressError } from './utils/ExpressError.js';
@@ -63,6 +64,61 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 app.use(flash())
+app.use(helmet())
+
+const scriptSrcUrls: string[] = [
+  "https://stackpath.bootstrapcdn.com",
+  "https://api.tiles.mapbox.com",
+  "https://api.mapbox.com",
+  "https://kit.fontawesome.com",
+  "https://cdnjs.cloudflare.com",
+  "https://cdn.jsdelivr.net",
+  "https://code.jquery.com",
+];
+
+const styleSrcUrls: string[] = [
+  "https://kit-free.fontawesome.com",
+  "https://stackpath.bootstrapcdn.com",
+  "https://api.mapbox.com",
+  "https://api.tiles.mapbox.com",
+  "https://fonts.googleapis.com",
+  "https://use.fontawesome.com",
+  "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/", // Added for Bootstrap CSS
+];
+
+const connectSrcUrls: string[] = [
+  "https://api.mapbox.com",
+  "https://*.tiles.mapbox.com",
+  "https://events.mapbox.com",
+];
+
+const fontSrcUrls: string[] = [
+  "https://fonts.gstatic.com", // Typically needed for Google Fonts
+];
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'self'", "'unsafe-inline'", ...scriptSrcUrls],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      styleSrcElem: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", "blob:"],
+      childSrc: ["blob:"],
+      objectSrc: ["'none'"],
+      imgSrc: [
+        "'self'",
+        "blob:",
+        "data:",
+        "https://res.cloudinary.com/dvmtn1i7u/", // Replace with your Cloudinary account
+        "https://images.unsplash.com",
+      ],
+      fontSrc: ["'self'", ...fontSrcUrls],
+    },
+  })
+);
 
 // Passport - Should be AFTER session, and BEFORE the router
 app.use(passport.initialize()); // Initialize passport

@@ -31,3 +31,4 @@ The goal of this project was to create a Node.js application that works just lik
 - **Encryption**: Bcrypt
 - **Media Management**: Cloudinary
 - **Maps** : Mapbox
+- **Security**: Helmet, sanitize-html, JOI

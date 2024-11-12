@@ -9,9 +9,9 @@
     <div class="row">
       <div class="col-md-4">
         <% if(campground.images.length) {%>
-        <img class="img-fluid" alt="" src="<%=campground.images[0].url%>">
+        <img crossorigin="anonymous" class="img-fluid" alt="" src="<%=campground.images[0].url%>">
         <% } else { %>
-          <img class="img-fluid" alt="" src="https://res.cloudinary.com/dvmtn1i7u/image/upload/v1730693725/qpsawzv4rhuymuhiabpw.png"
+          <img crossorigin="anonymous" class="img-fluid" alt="" src="https://res.cloudinary.com/dvmtn1i7u/image/upload/v1730693725/qpsawzv4rhuymuhiabpw.png">
         <% } %>
       </div>
       <div class="col-md-8">
@@ -28,8 +28,8 @@
   </div>
 <% } %>
 
-<script>
+<script crossorigin="anonymous">
   const campgrounds = '<%- JSON.stringify(campgrounds) %>'
   const allCampgrounds = JSON.parse(campgrounds)
 </script>
-<script src="/javascript/clusterMap.js"></script>
+<script crossorigin="anonymous" src="/javascript/clusterMap.js"></script>
