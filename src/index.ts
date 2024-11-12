@@ -151,13 +151,14 @@ app.use((err: ExpressError, req: Request, res: Response, next: NextFunction) => 
   res.status(statusCode).render('pages/error', { err });
 })
 
+const port = PORT || 3000
 // End of routing logic
 connectToDatabase(ATLAS_URI as string)
   .then(() => {
     //const app = express();
     console.log('Database connected');
 
-    app.listen(PORT, () => {
+    app.listen(port, () => {
       console.log('SERVER LISTENING ON PORT 3000');
     });
   })
