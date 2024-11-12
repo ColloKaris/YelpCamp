@@ -20,6 +20,7 @@ The goal of this project was to create a Node.js application that works just lik
 - Authorization for campground modification (only creators can edit/delete their campgrounds).
 - Flashing messages
 - Once you login, you have access to full CRUD on campgrounds, images and reviews.
+- HTML sanitization to avoid malicious HTML being passed as input to any field
 
 ## Tech Stack:
 
